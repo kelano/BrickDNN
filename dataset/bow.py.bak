@@ -57,27 +57,13 @@ def get_bow_vec(data, row_index, split, stem):
     return bow_vec
 
 
-def get_bow_vec_raw(raw_data, stem=False):
-    bow_vec = []
-    stemmer = PorterStemmer()
-    for data in raw_data:
-        val = prep_str(str(data))
-        if stem:
-            val = stemmer.stem(val)
-        if val not in bow_vec:
-            bow_vec.append(val)
-    bow_vec = sorted(bow_vec)
-    bow_vec.append('UNK')
-    return bow_vec
-
-
-def prep_str(input_str):
-    # input_str = unidecode.unidecode(str(input_str, "utf-8"))
-    return input_str.translate(str.maketrans('', '', string.punctuation)).lower().strip()
+def prep_str(str):
+    str = unidecode.unidecode(unicode(str, "utf-8"))
+    return str.translate(None, string.punctuation).lower().strip()
 
 
 def get_bow_vecs(col, split=False, stem=False):
-    with open('data.csv', 'r') as csvfile:
+    with open('data.csv', 'rb') as csvfile:
         reader = csv.reader(csvfile, delimiter=',', quotechar='"')
         first = True
         data = []

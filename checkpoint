@@ -1,3 +1,3 @@
-model_checkpoint_path: "model.ckpt"
+model_checkpoint_path: "C:\\code\\BrickDNN\\model.ckpt"
 all_model_checkpoint_paths: "/tmp/model.ckpt"
-all_model_checkpoint_paths: "model.ckpt"
+all_model_checkpoint_paths: "C:\\code\\BrickDNN\\model.ckpt"

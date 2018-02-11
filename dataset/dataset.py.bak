@@ -3,7 +3,7 @@ import numpy as np
 
 
 def get_datasets(feats, feature_converter_dict, X_cols, Y_col, debug=False):
-    with open('data.csv', 'r') as csvfile:
+    with open('data.csv', 'rb') as csvfile:
         reader = csv.reader(csvfile, delimiter=',', quotechar='"')
         first = True
         data = []
@@ -26,7 +26,7 @@ def get_datasets(feats, feature_converter_dict, X_cols, Y_col, debug=False):
                 new_value = feature_converter_dict[feat](orig_value)
                 if new_value is None:
                     if debug:
-                        print('filtered from', feat, ' ' + orig_value + ' : ', data_row)
+                        print 'filtered from', feat, ' ' + orig_value + ' : ', data_row
                     continue
                 filtered_data_row.extend(new_value) if type(new_value) is list else filtered_data_row.append(new_value)
             if len(filtered_data_row) == len(X_cols) + len(Y_col):
@@ -34,7 +34,7 @@ def get_datasets(feats, feature_converter_dict, X_cols, Y_col, debug=False):
         np_data = np.array(filtered_data)
 
         # print np_data
-        print('Data set size Filtered: {} Unfiltered: {}'.format(len(data), len(np_data)))
+        print 'Data set size Filtered: {} Unfiltered: {}'.format(len(data), len(np_data))
         return np_data
 
 
@@ -46,11 +46,11 @@ def split_dataset(dataset, X_cols, Y_col):
     train = int(total_size * .8)
     val = int((total_size - train)/2.0)
     test = total_size - train - val
-    print(total_size, train, val, test)
+    print total_size, train, val, test
 
-    train_data = dataset[list(range(0, train))]
-    dev_data = dataset[list(range(train, train + val))]
-    test_data = dataset[list(range(train + val, len(dataset)))]
+    train_data = dataset[range(0, train)]
+    dev_data = dataset[range(train, train + val)]
+    test_data = dataset[range(train + val, len(dataset))]
 
     return train_data[:, X_cols], train_data[:, Y_col],\
            dev_data[:, X_cols], dev_data[:, Y_col],\
@@ -63,7 +63,7 @@ def normalize_data(dataset, X_cols):
         x_data = dataset[:, X_col]
         x_min = x_data.min()
         x_max = x_data.max()
-        print(X_col, x_min, x_max)
+        print X_col, x_min, x_max
         norm_fn_map[X_col] = lambda x, x_min=x_min, x_max=x_max: np.divide(np.subtract(x, x_min), x_max - x_min)
         normed = norm_fn_map[X_col](x_data)
         # normed = np.divide(np.subtract(x_data, x_min), x_max - x_min)
@@ -77,7 +77,7 @@ def augment_dataset(dataset, feature_augment_dict, feats_to_cols):
     for i in range(0, orig_len):
         orig_data = dataset[i]
         augmented_data = np.copy(orig_data)
-        for feat, cols in feats_to_cols.items():
+        for feat, cols in feats_to_cols.iteritems():
             if feat in feature_augment_dict:
                 for col in cols:
                     augmented_data[col] = feature_augment_dict[feat](augmented_data[col], 2.0)
