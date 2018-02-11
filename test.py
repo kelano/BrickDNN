@@ -1,16 +1,27 @@
 
 import numpy as np
 
-from tensorflow.python.client import device_lib
-
-local_device_protos = device_lib.list_local_devices()
-print [x.name for x in local_device_protos]
-
-quit()
+# from tensorflow.python.client import device_lib
+#
+# local_device_protos = device_lib.list_local_devices()
+# print [x.name for x in local_device_protos]
 
 
 preds = np.mat([[0, 1, 2, 1, 6, 0]])
+
+preds = np.array([.20, .75, .05])
+
+for i in range(0, 20):
+    print np.random.choice(len(preds), p=preds)
+
+quit()
+
 themes = ['a', 'b', 'c', 'd', 'e', 'f']
+
+print themes[:4]
+print themes[4:]
+
+quit()
 
 
 
