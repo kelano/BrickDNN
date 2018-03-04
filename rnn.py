@@ -53,10 +53,12 @@ class Seuss:
             X_batch = np.concatenate((X_batch, self.X_train[0:remaining]))
             Y_batch = self.Y_train[self.start:self.train_size]
             Y_batch = np.concatenate((Y_batch, self.Y_train[0:remaining]))
+            # Y_batch = self.Y_train[remaining:remaining+1]
             self.start = remaining
         else:
             X_batch = self.X_train[self.start:end]
             Y_batch = self.Y_train[self.start:end]
+            # Y_batch = self.Y_train[end:end+1]
             self.start = end
         return X_batch, Y_batch
 
@@ -78,7 +80,7 @@ handle 28 sequences of 28 steps for every sample.
 # Training Parameters
 learning_rate = 0.001
 training_steps = 10000
-batch_size = 1#28
+batch_size = 10#28
 display_step = 1000
 
 # Network Parameters
@@ -89,6 +91,14 @@ num_classes = len(word_bow_vec) # MNIST total classes (0-9 digits)
 
 # tf Graph input
 X = tf.placeholder("float", [None, timesteps, num_input])
+
+print(X.shape)
+
+x = tf.unstack(X, timesteps, 1)
+
+print(x[0].shape, len(x))
+# quit()
+
 Y = tf.placeholder("float", [None, num_classes])
 
 # Define weights
@@ -134,6 +144,12 @@ accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 # Initialize the variables (i.e. assign their default value)
 init = tf.global_variables_initializer()
 
+def genWord(bow_vec, p=None):
+    pred_word_idx = np.random.choice(len(bow_vec), p=p)
+    pred_word = bow_vec[pred_word_idx]
+    pred_word_vec = np.array(get_bow_encoding(bow_vec, pred_word)).reshape(1, len(word_bow_vec))
+    return pred_word, pred_word_vec
+
 # Start training
 with tf.Session() as sess:
 
@@ -156,28 +172,45 @@ with tf.Session() as sess:
                   "{:.4f}".format(loss) + ", Training Accuracy= " + \
                   "{:.3f}".format(acc))
 
-            word = 'the'
-            word_vec = np.array(get_bow_encoding(word_bow_vec, word)).reshape(1, len(word_bow_vec))
+            word, word_vec = genWord(word_bow_vec)
+            sentence = []
+            sentence.append(word)
+            # word2, word_vec2 = genWord(word_bow_vec)
+            # word = 'the'
+            # word_vec = np.array(get_bow_encoding(word_bow_vec, word)).reshape(1, len(word_bow_vec))
             for word_index in range(0, 10):
-                print(word)
+                # print(word)
                 # get next word
-                word_vec_input = word_vec.reshape((batch_size, timesteps, num_input))
+                word_vec_input = word_vec.reshape((1, timesteps, num_input))
                 pred = sess.run(prediction, feed_dict={X: word_vec_input})
 
                 # pred_word_idx = np.argmax(pred)
                 preds = np.ravel(pred)
-                pred_word_idx = np.random.choice(len(preds), p=preds)
+
+                word, word_vec = genWord(word_bow_vec, preds)
+                sentence.append(word)
+
+            print(' '.join(sentence))
+
+                # word = word2
+                # word2 = word3
+                #
+                # word_vec = word_vec2
+                # word_vec2 = word_vec3
 
 
-                pred_word = word_bow_vec[pred_word_idx]
-                pred_word_vec = np.array(get_bow_encoding(word_bow_vec, pred_word)).reshape(1, len(word_bow_vec))
-                word = pred_word
-                word_vec = pred_word_vec
+                # pred_word_idx = np.random.choice(len(preds), p=preds)
+                #
+                #
+                # pred_word = word_bow_vec[pred_word_idx]
+                # pred_word_vec = np.array(get_bow_encoding(word_bow_vec, pred_word)).reshape(1, len(word_bow_vec))
+                # word = pred_word
+                # word_vec = pred_word_vec
 
-            test_data = dataset.X_test.reshape((-1, timesteps, num_input))
-            test_label = dataset.Y_test
-            print("Testing Accuracy:", \
-                  sess.run(accuracy, feed_dict={X: test_data, Y: test_label}))
+            # test_data = dataset.X_test.reshape((-1, timesteps, num_input))
+            # test_label = dataset.Y_test
+            # print("Testing Accuracy:", \
+            #       sess.run(accuracy, feed_dict={X: test_data, Y: test_label}))
 
 
 
