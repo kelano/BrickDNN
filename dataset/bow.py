@@ -3,6 +3,10 @@ import numpy as np
 import string
 from nltk.stem.porter import *
 import unidecode
+import io
+
+
+
 
 
 def get_bow_multi_encoding(bow_vec, str_values):
@@ -10,6 +14,8 @@ def get_bow_multi_encoding(bow_vec, str_values):
     for str_value in str_values:
         encoding[bow_vec.index(str_value)] += 1
     return encoding.tolist()
+
+
 
 
 def get_bow_encoding(bow_vec, str_value, split=False, stem=False):

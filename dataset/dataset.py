@@ -3,7 +3,7 @@ import numpy as np
 
 
 def get_datasets(feats, feature_converter_dict, X_cols, Y_col, debug=False):
-    with open('data.csv', 'r') as csvfile:
+    with open('data-updated.csv', 'r') as csvfile:
         reader = csv.reader(csvfile, delimiter=',', quotechar='"')
         first = True
         data = []
@@ -34,8 +34,21 @@ def get_datasets(feats, feature_converter_dict, X_cols, Y_col, debug=False):
         np_data = np.array(filtered_data)
 
         # print np_data
-        print('Data set size Filtered: {} Unfiltered: {}'.format(len(data), len(np_data)))
+        print('Data set size Unfiltered: {} Filtered: {}'.format(len(data), len(np_data)))
         return np_data
+
+
+def get_batch_indices(batch_size, length):
+    batches = []
+    if length == 0:
+        return batches
+    start = 0
+    end = min(length, start + batch_size)
+    while start != end:
+        batches.append([start, end])
+        start = end
+        end = min(length, start + batch_size)
+    return batches
 
 
 def split_dataset(dataset, X_cols, Y_col):
@@ -87,4 +100,23 @@ def augment_dataset(dataset, feature_augment_dict, feats_to_cols):
     dataset = np.append(dataset, all_augmented_data, axis=0)
     return dataset
 
+
+# import numpy as np
+#
+# arr1 = np.arange(8).reshape(2, 4)
+# arr2 = np.arange(10).reshape(2, 5)
+# np.savez('mat.npz', name1=arr1, name2=arr2)
+#
+# data = np.load('mat.npz')
+# print data['name1']
+# print data['name2']
+
+
+def save_dataset(train_X, train_Y, dev_X, dev_Y, test_X, test_Y):
+    np.savez('dataset.npz', train_X=train_X, train_Y=train_Y, dev_X=dev_X, dev_Y=dev_Y, test_X=test_X, test_Y=test_Y)
+
+
+def load_dataset():
+    data = np.load('dataset.npz')
+    return data['train_X'], data['train_Y'], data['dev_X'], data['dev_Y'], data['test_X'], data['test_Y']
 
