@@ -29,8 +29,8 @@ def get_datasets(feats, feature_converter_dict, X_cols, Y_col, debug=False):
                         print('filtered from', feat, ' ' + orig_value + ' : ', data_row)
                     continue
                 filtered_data_row.extend(new_value) if type(new_value) is list else filtered_data_row.append(new_value)
-            if len(filtered_data_row) == len(X_cols) + len(Y_col):
-                filtered_data.append(filtered_data_row)
+            # if len(filtered_data_row) == len(X_cols) + len(Y_col):
+            filtered_data.append(filtered_data_row)
         np_data = np.array(filtered_data)
 
         # print np_data
@@ -45,13 +45,15 @@ def get_batch_indices(batch_size, length):
     start = 0
     end = min(length, start + batch_size)
     while start != end:
-        batches.append([start, end])
+        if end - start == batch_size:
+            batches.append([start, end])
         start = end
         end = min(length, start + batch_size)
     return batches
 
 
 def split_dataset(dataset, X_cols, Y_col):
+    np.random.seed(28)
     np.random.shuffle(dataset)
 
     total_size = len(dataset)
@@ -112,11 +114,11 @@ def augment_dataset(dataset, feature_augment_dict, feats_to_cols):
 # print data['name2']
 
 
-def save_dataset(train_X, train_Y, dev_X, dev_Y, test_X, test_Y):
-    np.savez('dataset.npz', train_X=train_X, train_Y=train_Y, dev_X=dev_X, dev_Y=dev_Y, test_X=test_X, test_Y=test_Y)
+def save_dataset(train_X, train_Y, dev_X, dev_Y, test_X, test_Y, name='dataset'):
+    np.savez('%s.npz' % name, train_X=train_X, train_Y=train_Y, dev_X=dev_X, dev_Y=dev_Y, test_X=test_X, test_Y=test_Y)
 
 
-def load_dataset():
-    data = np.load('dataset.npz')
+def load_dataset(name='dataset'):
+    data = np.load('%s.npz' % name)
     return data['train_X'], data['train_Y'], data['dev_X'], data['dev_Y'], data['test_X'], data['test_Y']
 

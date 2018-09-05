@@ -2,6 +2,30 @@
 import numpy as np
 
 
+x = np.arange(0, 5)
+print(x)
+
+x = np.arange(0, 5)
+np.random.shuffle(x)
+print(x)
+
+x = np.arange(0, 5)
+np.random.shuffle(x)
+print(x)
+
+x = np.arange(0, 5)
+np.random.seed(28)
+np.random.shuffle(x)
+print(x)
+
+x = np.arange(0, 5)
+np.random.seed(28)
+np.random.shuffle(x)
+print(x)
+
+exit()
+
+
 x = np.zeros(5)
 a = np.array(range(0, 5))
 

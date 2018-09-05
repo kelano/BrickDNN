@@ -28,7 +28,7 @@ def train_epoch(key, train_X, train_Y, batch_size, current_learning_rate, batch_
                                                           learning_rate: current_learning_rate})
         else:
             batch_loss = sess.run(cost, feed_dict={x: batch_x, y: batch_y, keep_prob: 0.5})
-        print('batch loss (%d/%d): %f' % (batch_count, len(batches), batch_loss))
+        # print('batch loss (%d/%d): %f' % (batch_count, len(batches), batch_loss))
         batch_count = batch_count + 1
         batch_losses.append(batch_loss)
 
@@ -37,15 +37,39 @@ def train_epoch(key, train_X, train_Y, batch_size, current_learning_rate, batch_
 
 def run_xval(key, dev_X, dev_Y, xval_losses, prediction, cost, sess, x, y, keep_prob):
 
-    print(('Evaluating ', key))
+    # print(('Evaluating ', key))
     # acc = evaluate(sess, value, dev_X, dev_Y)
     preds = sess.run(prediction, feed_dict={x: dev_X, y: dev_Y, keep_prob: 1.0})
     xval_loss = sess.run(cost, feed_dict={x: dev_X, y: dev_Y, keep_prob: 1.0})
     corr = len(np.where(np.equal(np.argmax(preds, axis=1), np.argmax(dev_Y, axis=1)))[0])
-    print(corr, ' correct out of ', len(dev_Y))
+    # print('Evaluating ', key, ':', corr, ' correct out of ', len(dev_Y))
     acc = float(corr) / len(dev_Y)
+    print('XVAL Acc: %f (%d/%d) Loss: %f' % (acc, corr, len(dev_Y), xval_loss))
     xval_losses.append(xval_loss)
     return xval_loss, acc
+
+
+def run_batch_eval(key, X, Y, batch_size, prediction, cost, sess, x, y, keep_prob):
+    batch_losses = []
+    tot_cor = 0
+    tot = 0
+    batches = get_batch_indices(batch_size, len(X))
+
+    for batch in batches:
+        batch_x = X[batch[0]:batch[1]]
+        batch_y = Y[batch[0]:batch[1]]
+        preds = sess.run(prediction, feed_dict={x: batch_x, y: batch_y, keep_prob: 1.0})
+        xval_loss = sess.run(cost, feed_dict={x: batch_x, y: batch_y, keep_prob: 1.0})
+        corr = len(np.where(np.equal(np.argmax(preds, axis=1), np.argmax(batch_y, axis=1)))[0])
+        tot_cor += corr
+        tot += len(batch_y)
+        batch_losses.append(xval_loss)
+
+    mean_loss = float(np.mean(batch_losses))
+    acc = float(tot_cor) / tot
+
+    print('XVAL Acc: %f (%d/%d) Mean Loss: %f' % (acc, tot_cor, tot, mean_loss))
+    return mean_loss, acc, batch_losses
 
 
 def train_neural_network_new_map(eval_map):
@@ -107,7 +131,7 @@ def train_neural_network_new(key, model):
             num_batches = train_epoch(key, train_X, train_Y, batch_size, current_learning_rate, batch_losses, optimizer,
                                       cost, sess, x, y, keep_prob, learning_rate)
 
-            xval_loss, xval_acc = run_xval(key, dev_X, dev_Y, xval_losses, prediction, cost, sess, x, y, keep_prob)
+            xval_loss, xval_acc, xval_losses = run_batch_eval(key, dev_X, dev_Y, batch_size, prediction, cost, sess, x, y, keep_prob)
 
             if len(xval_losses) > 1 and xval_losses[-1] > xval_losses[-2]:
                 new_learning_rate = current_learning_rate * learning_rate_decay
@@ -271,33 +295,58 @@ def test_neural_network(eval_map):
     prediction = {}
 
     for key, value in eval_map.items():
-        prediction[key] = value.__call__(x, keep_prob)
+        prediction = value.__call__(x, keep_prob)
+        cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=prediction, labels=y))
 
-    # with tf.device('/device:CPU:0'):
-    # with tf.Session(config=tf.ConfigProto(log_device_placement=True)) as sess:
-    with tf.Session() as sess:
-        sess.run(tf.global_variables_initializer())
-        saver = tf.train.Saver()
+        # with tf.device('/device:CPU:0'):
+        # with tf.Session(config=tf.ConfigProto(log_device_placement=True)) as sess:
+        with tf.Session() as sess:
+            sess.run(tf.global_variables_initializer())
+            saver = tf.train.Saver()
 
-        saver.restore(sess, "C:\code\BrickDNN\model.ckpt")
-        # saver.restore(sess, "C:\code\BrickDNN\model.ckpt")
-        print(sess.run(tf.global_variables()))
+            saver.restore(sess, "C:\code\BrickDNN\model.ckpt")
+            # saver.restore(sess, "C:\code\BrickDNN\model.ckpt")
+            print(sess.run(tf.global_variables()))
 
-        # checkpoint_path = os.path.join("C:\code\BrickDNN\model.ckpt")
-        print_tensors_in_checkpoint_file("C:\code\BrickDNN\model.ckpt", all_tensors=True, all_tensor_names=True,
-                                         tensor_name='')
+            # checkpoint_path = os.path.join("C:\code\BrickDNN\model.ckpt")
+            print_tensors_in_checkpoint_file("C:\code\BrickDNN\model.ckpt", all_tensors=True, all_tensor_names=True,
+                                             tensor_name='')
 
-        for key, value in eval_map.items():
-            print(('Evaluating ', key))
-            # acc = evaluate(sess, value, dev_X, dev_Y)
-            preds = sess.run(prediction[key], feed_dict={x: test_X, y: test_Y, keep_prob: 1.0})
-            corr = len(np.where(np.equal(np.argmax(preds, axis=1), np.argmax(dev_Y, axis=1)))[0])
-            print(corr, ' correct out of ', len(dev_Y))
-            acc = float(corr) / len(dev_Y)
-            print(acc)
+            batch_size = 128
+            test_loss, test_acc, test_losses = run_batch_eval(key, test_X, test_Y, batch_size, prediction, cost, sess, x,
+                                                 y, keep_prob)
 
 
 def live_test_network(model):
+    feature_converter_dict = {
+        # "Theme": lambda str_value: list((int(str_value != 'Star Wars'), int(str_value == 'Star Wars'))),
+        "Theme": lambda str_value: get_bow_encoding(theme_bow_vec, str_value),
+        # "Name": lambda str_value: get_bow_encoding(set_name_bow_vec, str_value, split=True, stem=True),
+        "Name": lambda str_value: fasttext.get_fasttext_encoding(fasttext_data, str_value)
+    }
+
+    feature_augment_dict = {
+    }
+
+    # ['Number', 'Theme', 'Subtheme', 'Year', 'SetName', 'Minifigs', 'Pieces',
+    # 'UKPrice', 'USPrice', 'CAPrice', 'EAN', 'UPC', 'Notes', 'QtyOwned', 'NewValue(USD)', 'UsedValue(USD)']
+    feats = ["Name", "Theme"]
+
+    import fasttext
+    print('loading fasttest')
+    fasttext_data = fasttext.load_vectors()
+    print('done loading')
+
+    # set_name_bow_vec_2 = get_bow_vecs('Name', split=True, stem=False)
+    # print len(set_name_bow_vec)
+    # print len(set_name_bow_vec_2)
+
+    feats_to_cols = {
+        # "Name": list(range(0, len(set_name_bow_vec)))
+        "Name": list(range(0, 300))
+        # "Theme": range(len(set_name_bow_vec), len(set_name_bow_vec) + len(theme_bow_vec))
+    }
+
     saver = tf.train.Saver()
     with tf.Session() as sess:
         saver.restore(sess, "C:\code\BrickDNN\model.ckpt")
@@ -341,12 +390,6 @@ def live_test_network(model):
 
 
 def build_dataset():
-    feature_converter_dict = {
-        # "Theme": lambda str_value: list((int(str_value != 'Star Wars'), int(str_value == 'Star Wars'))),
-        "Theme": lambda str_value: get_bow_encoding(theme_bow_vec, str_value),
-        # "Name": lambda str_value: get_bow_encoding(set_name_bow_vec, str_value, split=True, stem=True),
-        "Name": lambda str_value: fasttext.get_fasttext_encoding(fasttext_data, str_value)
-    }
 
     feature_augment_dict = {
     }
@@ -358,12 +401,20 @@ def build_dataset():
 
     import fasttext
     print('loading fasttest')
-    fasttext_data = fasttext.load_vectors()
+    word_2_vec, word_to_idx, idx_to_vec, tf_embedding = fasttext.load_vectors()
     print('done loading')
 
     # set_name_bow_vec_2 = get_bow_vecs('Name', split=True, stem=False)
     # print len(set_name_bow_vec)
     # print len(set_name_bow_vec_2)
+
+
+    feature_converter_dict = {
+        # "Theme": lambda str_value: list((int(str_value != 'Star Wars'), int(str_value == 'Star Wars'))),
+        "Theme": lambda str_value: get_bow_encoding(theme_bow_vec, str_value),
+        # "Name": lambda str_value: get_bow_encoding(set_name_bow_vec, str_value, split=True, stem=True),
+        "Name": lambda str_value: fasttext.get_fasttext_encoding(word_2_vec, str_value)
+    }
 
     feats_to_cols = {
         # "Name": list(range(0, len(set_name_bow_vec)))
@@ -388,7 +439,7 @@ hm_epochs = 1000
 eval_freq = 1
 initial_learning_rate = 0.01
 learning_rate_decay = 0.1
-max_decays = 2
+max_decays = 3
 
 theme_bow_vec = get_bow_vecs('Theme')
 set_name_bow_vec = get_bow_vecs('Name', split=True, stem=True)
@@ -410,9 +461,10 @@ dnn_model = dnn_module_nodrop.Model(input_size, inner_size, output_size)
 
 eval_map = {
     "dnn_dropout": dnn_model_dropout,
-    "dnn": dnn_model,
+    # "dnn": dnn_model,
 }
 
+build_dataset()
 train_X, train_Y, dev_X, dev_Y, test_X, test_Y = load_dataset()
 
 
