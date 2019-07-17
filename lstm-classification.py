@@ -4,7 +4,11 @@ from tensorflow.python.tools.inspect_checkpoint import print_tensors_in_checkpoi
 import models.regression_v1_dropout as dnn_module
 import models.regression_v1 as dnn_module_nodrop
 
-from matplotlib import pyplot as plt
+
+import matplotlib
+matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
+# from matplotlib import pyplot as plt
 
 from dataset.dataset import *
 from dataset.bow import *
@@ -575,7 +579,7 @@ eval_map = {
     # "dnn": dnn_model,
 }
 
-# build_dataset()
+build_dataset()
 train_X, train_Y, dev_X, dev_Y, test_X, test_Y = load_dataset(name='lstmdataset')
 
 
@@ -589,8 +593,8 @@ train_X, train_Y, dev_X, dev_Y, test_X, test_Y = load_dataset(name='lstmdataset'
 shapes = ('r', 'g', 'b', 'y')
 
 # train_neural_network(eval_map)
-# train_neural_network_new_map(eval_map)
-test_neural_network_new(eval_map)
+train_neural_network_new_map(eval_map)
+# test_neural_network_new(eval_map)
 # live_test_network(dnn_model)
 
 

@@ -1,0 +1,213 @@
+{
+  "nodes": [
+    {
+      "op": "null", 
+      "name": "data", 
+      "inputs": []
+    }, 
+    {
+      "op": "SwapAxis", 
+      "name": "simplelstm_decoupled_mxnet0_lstm0_swapaxes0", 
+      "attrs": {
+        "dim1": "0", 
+        "dim2": "1"
+      }, 
+      "inputs": [[0, 0, 0]]
+    }, 
+    {
+      "op": "null", 
+      "name": "simplelstm_decoupled_mxnet0_lstm0_l0_i2h_weight", 
+      "attrs": {
+        "__dtype__": "0", 
+        "__lr_mult__": "1.0", 
+        "__shape__": "(600L, 300L)", 
+        "__storage_type__": "0", 
+        "__wd_mult__": "1.0"
+      }, 
+      "inputs": []
+    }, 
+    {
+      "op": "Reshape", 
+      "name": "simplelstm_decoupled_mxnet0_lstm0_reshape0", 
+      "attrs": {"shape": "-1"}, 
+      "inputs": [[2, 0, 0]]
+    }, 
+    {
+      "op": "null", 
+      "name": "simplelstm_decoupled_mxnet0_lstm0_l0_h2h_weight", 
+      "attrs": {
+        "__dtype__": "0", 
+        "__lr_mult__": "1.0", 
+        "__shape__": "(600L, 150L)", 
+        "__storage_type__": "0", 
+        "__wd_mult__": "1.0"
+      }, 
+      "inputs": []
+    }, 
+    {
+      "op": "Reshape", 
+      "name": "simplelstm_decoupled_mxnet0_lstm0_reshape1", 
+      "attrs": {"shape": "-1"}, 
+      "inputs": [[4, 0, 0]]
+    }, 
+    {
+      "op": "null", 
+      "name": "simplelstm_decoupled_mxnet0_lstm0_l0_i2h_bias", 
+      "attrs": {
+        "__dtype__": "0", 
+        "__init__": "zeros", 
+        "__lr_mult__": "1.0", 
+        "__shape__": "(600L,)", 
+        "__storage_type__": "0", 
+        "__wd_mult__": "1.0"
+      }, 
+      "inputs": []
+    }, 
+    {
+      "op": "Reshape", 
+      "name": "simplelstm_decoupled_mxnet0_lstm0_reshape2", 
+      "attrs": {"shape": "-1"}, 
+      "inputs": [[6, 0, 0]]
+    }, 
+    {
+      "op": "null", 
+      "name": "simplelstm_decoupled_mxnet0_lstm0_l0_h2h_bias", 
+      "attrs": {
+        "__dtype__": "0", 
+        "__init__": "zeros", 
+        "__lr_mult__": "1.0", 
+        "__shape__": "(600L,)", 
+        "__storage_type__": "0", 
+        "__wd_mult__": "1.0"
+      }, 
+      "inputs": []
+    }, 
+    {
+      "op": "Reshape", 
+      "name": "simplelstm_decoupled_mxnet0_lstm0_reshape3", 
+      "attrs": {"shape": "-1"}, 
+      "inputs": [[8, 0, 0]]
+    }, 
+    {
+      "op": "_rnn_param_concat", 
+      "name": "simplelstm_decoupled_mxnet0_lstm0__rnn_param_concat0", 
+      "attrs": {
+        "dim": "0", 
+        "num_args": "4"
+      }, 
+      "inputs": [[3, 0, 0], [5, 0, 0], [7, 0, 0], [9, 0, 0]]
+    }, 
+    {
+      "op": "_zeros", 
+      "name": "simplelstm_decoupled_mxnet0_lstm0_simplelstm_decoupled_mxnet0_lstm0_h0_0", 
+      "attrs": {
+        "__layout__": "LNC", 
+        "dtype": "float32", 
+        "shape": "(1, 0, 150)"
+      }, 
+      "inputs": []
+    }, 
+    {
+      "op": "_zeros", 
+      "name": "simplelstm_decoupled_mxnet0_lstm0_simplelstm_decoupled_mxnet0_lstm0_h0_1", 
+      "attrs": {
+        "__layout__": "LNC", 
+        "dtype": "float32", 
+        "shape": "(1, 0, 150)"
+      }, 
+      "inputs": []
+    }, 
+    {
+      "op": "RNN", 
+      "name": "simplelstm_decoupled_mxnet0_lstm0_rnn0", 
+      "attrs": {
+        "bidirectional": "False", 
+        "lstm_state_clip_max": "None", 
+        "lstm_state_clip_min": "None", 
+        "lstm_state_clip_nan": "False", 
+        "mode": "lstm", 
+        "num_layers": "1", 
+        "p": "0", 
+        "projection_size": "None", 
+        "state_outputs": "True", 
+        "state_size": "150"
+      }, 
+      "inputs": [[1, 0, 0], [10, 0, 0], [11, 0, 0], [12, 0, 0]]
+    }, 
+    {
+      "op": "SwapAxis", 
+      "name": "simplelstm_decoupled_mxnet0_lstm0_swapaxes1", 
+      "attrs": {
+        "dim1": "0", 
+        "dim2": "1"
+      }, 
+      "inputs": [[13, 0, 0]]
+    }, 
+    {
+      "op": "null", 
+      "name": "simplelstm_decoupled_mxnet0_dense0_weight", 
+      "attrs": {
+        "__dtype__": "0", 
+        "__lr_mult__": "1.0", 
+        "__shape__": "(2L, 150L)", 
+        "__storage_type__": "0", 
+        "__wd_mult__": "1.0"
+      }, 
+      "inputs": []
+    }, 
+    {
+      "op": "null", 
+      "name": "simplelstm_decoupled_mxnet0_dense0_bias", 
+      "attrs": {
+        "__dtype__": "0", 
+        "__init__": "zeros", 
+        "__lr_mult__": "1.0", 
+        "__shape__": "(2L,)", 
+        "__storage_type__": "0", 
+        "__wd_mult__": "1.0"
+      }, 
+      "inputs": []
+    }, 
+    {
+      "op": "FullyConnected", 
+      "name": "simplelstm_decoupled_mxnet0_dense0_fwd", 
+      "attrs": {
+        "flatten": "False", 
+        "no_bias": "False", 
+        "num_hidden": "2"
+      }, 
+      "inputs": [[14, 0, 0], [15, 0, 0], [16, 0, 0]]
+    }, 
+    {
+      "op": "softmax", 
+      "name": "simplelstm_decoupled_mxnet0_softmax0", 
+      "attrs": {"axis": "2"}, 
+      "inputs": [[17, 0, 0]]
+    }
+  ], 
+  "arg_nodes": [0, 2, 4, 6, 8, 15, 16], 
+  "node_row_ptr": [
+    0, 
+    1, 
+    2, 
+    3, 
+    4, 
+    5, 
+    6, 
+    7, 
+    8, 
+    9, 
+    10, 
+    11, 
+    12, 
+    13, 
+    16, 
+    17, 
+    18, 
+    19, 
+    20, 
+    21
+  ], 
+  "heads": [[18, 0, 0]], 
+  "attrs": {"mxnet_version": ["int", 10301]}
+}

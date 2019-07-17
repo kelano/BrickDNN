@@ -3,7 +3,7 @@ import numpy as np
 
 
 def load_vectors():
-    fin = io.open('..\wiki-news-300d-1M-subset.vec', 'r', encoding='utf-8', newline='\n', errors='ignore')
+    fin = io.open('../../wiki-news-300d-1M-subset.vec', 'r', encoding='utf-8', newline='\n', errors='ignore')
     n, d = map(int, fin.readline().split())
     word_2_vec = {}
     word_to_idx = {}
@@ -25,7 +25,7 @@ def load_vectors():
 
 
 def load_vectors_full():
-    fin = io.open('..\wiki-news-300d-1M.vec', 'r', encoding='utf-8', newline='\n', errors='ignore')
+    fin = io.open('../../wiki-news-300d-1M.vec', 'r', encoding='utf-8', newline='\n', errors='ignore')
     n, d = map(int, fin.readline().split())
     word_2_vec = {}
     word_to_idx = {}

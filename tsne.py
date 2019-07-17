@@ -1,7 +1,40 @@
 from dataset.dataset import *
 from sklearn.manifold import TSNE
-from matplotlib import pyplot as plt
+
+import matplotlib
+matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
+# from matplotlib import pyplot as plt
+
 from dataset.bow import *
+
+
+def get_word_dist(X, Y):
+    pos_words = []
+    neg_words = []
+    shared_words = []
+
+    for idx in range(0, len(X)):
+        x = X[idx]
+        y = Y[idx]
+
+        for word_idx in x:
+            if word_idx in shared_words:
+                continue
+            elif y == 1:
+                if word_idx in neg_words:
+                    neg_words.remove(word_idx)
+                    shared_words.append(word_idx)
+                elif word_idx not in pos_words:
+                    pos_words.append(word_idx)
+            elif y == 0:
+                if word_idx in pos_words:
+                    pos_words.remove(word_idx)
+                    shared_words.append(word_idx)
+                elif word_idx not in neg_words:
+                    neg_words.append(word_idx)
+
+    return pos_words, neg_words, shared_words
 
 
 def build_dataset():
@@ -71,14 +104,46 @@ def tsne_plot(X, Y, word_2_vec, word_to_idx, idx_to_vec, tf_embedding):
     tokens = []
     colors = []
 
-    for idx in range(0, len(X)):
-        x = X[idx]
-        y = Y[idx]
+    # X = X[0:2000]
 
-        for word_idx in x:
-            tokens.append(idx_to_vec[word_idx])
-            labels.append(idx_to_word[word_idx])
-            colors.append('r' if y == 0 else 'g')
+    pos_words, neg_words, shared_words = get_word_dist(X, Y)
+
+    print(len(pos_words), len(neg_words), len(shared_words))
+
+    print('pos')
+    for word_idx in pos_words:
+        print(idx_to_word[word_idx])#, idx_to_vec[word_idx])
+        tokens.append(idx_to_vec[word_idx])
+        labels.append(idx_to_word[word_idx])
+        colors.append('r')
+
+    print('neg')
+    for word_idx in neg_words:
+        print(idx_to_word[word_idx])#, idx_to_vec[word_idx])
+        tokens.append(idx_to_vec[word_idx])
+        labels.append(idx_to_word[word_idx])
+        colors.append('g')
+
+
+    print('shared')
+    for word_idx in shared_words:
+        print(idx_to_word[word_idx])#, idx_to_vec[word_idx])
+        tokens.append(idx_to_vec[word_idx])
+        labels.append(idx_to_word[word_idx])
+        colors.append('y')
+
+
+    # exit()
+    #
+    # for idx in range(0, len(X)):
+    #     x = X[idx]
+    #     y = Y[idx]
+    #
+    #     for word_idx in x:
+    #         # print(idx_to_word[word_idx], idx_to_vec[word_idx])
+    #         tokens.append(idx_to_vec[word_idx])
+    #         labels.append(idx_to_word[word_idx])
+    #         colors.append('r' if y == 0 else 'g')
 
     tsne_model = TSNE(perplexity=40, n_components=2, init='pca', n_iter=250, random_state=23)
     new_values = tsne_model.fit_transform(tokens)
@@ -91,13 +156,13 @@ def tsne_plot(X, Y, word_2_vec, word_to_idx, idx_to_vec, tf_embedding):
 
     plt.figure(figsize=(16, 16))
     for i in range(len(x)):
-        plt.scatter(x[i], y[i], c=colors)
-        plt.annotate(labels[i],
-                     xy=(x[i], y[i]),
-                     xytext=(5, 2),
-                     textcoords='offset points',
-                     ha='right',
-                     va='bottom')
+        plt.scatter(x[i], y[i], color=colors[i])
+        # plt.annotate(labels[i],
+        #              xy=(x[i], y[i]),
+        #              xytext=(5, 2),
+        #              textcoords='offset points',
+        #              ha='right',
+        #              va='bottom')
     plt.show()
 
 
